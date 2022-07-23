@@ -31,10 +31,16 @@ fs.readFile("./txt/start.txt", "utf-8", (error, data1) => {
 });
 
 //////////////////////////////////////////////////////
-// SERVER AND BASIC ROUTING
+// SERVER, BASIC ROUTING, AND SUPER BASIC API
 const http = require("http");
 const url = require("url");
 
+// This operation does not get executed each time on a request
+// THis is top level code is executed only once
+const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8");
+const dataObject = JSON.parse(data);
+
+// This operation gets executed each time on a request
 const server = http.createServer((req, res) => {
   const pathName = req.url;
 
@@ -42,6 +48,11 @@ const server = http.createServer((req, res) => {
     res.end("This is the OVERVIEW section!");
   } else if (pathName === "/product") {
     res.end("This is the PRODUCT section!");
+  } else if (pathName === "/api") {
+    res.writeHead(200, {
+      "Content-type": "application/json",
+    });
+    res.end(data);
   } else {
     res.writeHead(404, {
       // because of this header, the browser is expecting this html there
