@@ -3,7 +3,27 @@ const fs = require("fs");
 // Read from files
 const textIn = fs.readFileSync("./txt/input.txt", "utf-8");
 
-// Write from and in files in Node
+// Write from files in Node
 const textOut = `This is what we know about avocado: ${textIn}. \n Created on ${Date.now()}`;
 fs.writeFileSync("./txt/output.text", textOut);
-console.log("File was written");
+
+// Reading files in an asynchronous way
+fs.readFile("./txt/start.txt", "utf-8", (error, data1) => {
+  if (error) return console.log("ERROR!");
+
+  fs.readFile(`./txt/${data1}.txt`, "utf-8", (error, data2) => {
+    // console.log(data2);
+    fs.readFile("./txt/append.txt", "utf-8", (error, data3) => {
+      // console.log(data3);
+
+      fs.writeFile(
+        "./txt/final.txt",
+        `${data3} \n ${data2}`,
+        "utf-8",
+        (err) => {
+          console.log("Your file has been written :)");
+        }
+      );
+    });
+  });
+});
