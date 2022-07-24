@@ -36,6 +36,29 @@ app.get('/api/v1/tours', (req, res) => {
   });
 });
 
+// Single tour endpoint
+app.get('/api/v1/tours/:id', (req, res) => {
+  // console.log(req.params);
+
+  const id = req.params.id * 1;
+  const tour = tours.find((el) => el.id === id);
+
+  // if (id > tours.length) {
+  if (!tour) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
+  }
+
+  res.status(200).json({
+    status: 'Success',
+    data: {
+      tour,
+    },
+  });
+});
+
 // Reqest object that holds the information about the post request that was done by the users
 app.post(`/api/v1/tours`, (req, res) => {
   // console.log(req.body);
