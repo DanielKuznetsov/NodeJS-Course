@@ -1,11 +1,25 @@
 // https://www.natours.dev/api/v1/tours
-const express = require('express');
 const fs = require('fs');
+const express = require('express');
+const morgan = require('morgan');
 
 const app = express();
 
-// Middleware - function that modifies the incoming information
+// 1. MIDDLEWARES - middleware - function that modifies the incoming information
 app.use(express.json());
+app.use(morgan('dev'));
+
+app.use((req, res, next) => {
+  console.log('Hello From the Middleware');
+  next();
+});
+
+app.use((req, res, next) => {
+  req.requestTime = new Date().toISOString();
+  next();
+});
+
+// 2. ROUTE HANDLERS
 
 // All of this data is coming from an JSON file that should come from a database
 const tours = JSON.parse(
@@ -13,6 +27,8 @@ const tours = JSON.parse(
 );
 
 const getAllTours = (req, res) => {
+  console.log(req.requestTime);
+
   res.status(200).json({
     status: 'Success',
     results: tours.length,
@@ -110,12 +126,16 @@ const deleteTour = (req, res) => {
 // ? app.patch(`/api/v1/tours/:id`, updateTour);
 // ? app.delete(`/api/v1/tours/:id`, deleteTour);
 
+// 1. ROUTES
+
 app.route('/api/v1/tours').get(getAllTours).post(createTour);
 app
   .route('/api/v1/tours/:id')
   .get(getTour)
   .patch(updateTour)
   .delete(deleteTour);
+
+// 1. START THE SERVER
 
 const port = 3000;
 app.listen(port, () => {
