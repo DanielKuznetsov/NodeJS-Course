@@ -19,6 +19,18 @@ exports.checkID = (req, res, next, value) => {
   next();
 };
 
+// This is checking if the user has inputed the tour name or price in the form
+exports.checkBody = (req, res, next) => {
+  if (!req.body.name || !req.body.price) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Missing name or price',
+    });
+  }
+
+  next();
+};
+
 exports.getAllTours = (req, res) => {
   // console.log(req.requestTime);
 
@@ -70,6 +82,8 @@ exports.createTour = (req, res) => {
 };
 
 exports.updateTour = (req, res) => {
+  console.log(req.body);
+
   res.status(200).json({
     status: 'success',
     data: {
