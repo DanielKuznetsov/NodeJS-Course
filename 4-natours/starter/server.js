@@ -40,7 +40,22 @@ const tourSchema = new mongoose.Schema({
   },
 });
 // ! THIS IS BASIC MODEL TO THE SCHEMA RIGHT ABOVE
-const Tour = mongoose.Model('Tour', tourSchema); // use uppercase on names and variables in mongoose models
+const Tour = mongoose.model('Tour', tourSchema); // use uppercase on names and variables in mongoose models
+
+// Save the variable into the database
+const testTour = new Tour({
+  name: 'The Park Camper',
+  price: 125,
+});
+
+testTour
+  .save()
+  .then((document) => {
+    console.log(document);
+  })
+  .catch((err) => {
+    console.error(err);
+  });
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
