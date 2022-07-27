@@ -21,16 +21,16 @@ const Tour = require(`.././models/tourModel`);
 // };
 
 // This is checking if the user has inputed the tour name or price in the form
-exports.checkBody = (req, res, next) => {
-  if (!req.body.name || !req.body.price) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Missing name or price',
-    });
-  }
+// exports.checkBody = (req, res, next) => {
+//   if (!req.body.name || !req.body.price) {
+//     return res.status(400).json({
+//       status: 'fail',
+//       message: 'Missing name or price',
+//     });
+//   }
 
-  next();
-};
+//   next();
+// };
 
 exports.getAllTours = (req, res) => {
   // console.log(req.requestTime);
@@ -58,13 +58,25 @@ exports.getTour = (req, res) => {
   // });
 };
 
-exports.createTour = (req, res) => {
-  res.status(201).json({
-    status: 'success',
-    // data: {
-    //   tour: newTour,
-    // },
-  });
+exports.createTour = async (req, res) => {
+  // const newTour = new Tour({});
+  // newTour.save();
+
+  try {
+    const newTour = await Tour.create(req.body);
+
+    res.status(201).json({
+      status: 'success',
+      data: {
+        tour: newTour,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'failed',
+      message: err.message,
+    });
+  }
 
   // // console.log(req.body);
 
