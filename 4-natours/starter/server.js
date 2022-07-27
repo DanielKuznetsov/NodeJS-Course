@@ -1,11 +1,11 @@
 // It is good practice to have one separate file for express all alone and another file for server side
 // 3. START THE SERVER
 
-const dotenv = require('dotenv');
-const app = require(`./app.js`);
-
 const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+
 dotenv.config({ path: './config.env' });
+const app = require(`./app.js`);
 
 // replacing password in the mongodb string with the password environment variable
 const DB = process.env.DATABASE.replace(

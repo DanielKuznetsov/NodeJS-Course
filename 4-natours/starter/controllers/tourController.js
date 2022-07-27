@@ -34,9 +34,27 @@ const Tour = require(`.././models/tourModel`);
 
 exports.getAllTours = async (req, res) => {
   // console.log(req.requestTime);
+  // console.log(req.query);
   try {
-    const tours = await Tour.find();
+    // BUILD QUERY
 
+    // 1) Filtering...
+    const queryObj = { ...req.query };
+    const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    excludedFields.forEach((el) => delete queryObj[el]);
+
+    // 2) Advanced Filtering...
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = JSON.parse(
+      queryStr.replace(/\bgte|gt|lte|lt\b/g, (match) => `$${match}`)
+    ); // "g" is needed to repalace all occurances and not just the first one, "\b" is specified to look for those exact words
+
+    const query = Tour.find(queryStr);
+
+    // EXECUTE QUERY
+    const tours = await query;
+
+    // SEND RESPONSE
     res.status(200).json({
       status: 'Success',
       results: tours.length,
