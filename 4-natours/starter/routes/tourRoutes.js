@@ -4,7 +4,7 @@ const tourController = require('../controllers/tourController');
 const router = express.Router();
 
 // Checking if the ID works -> if the ID is actually valid
-router.param('id', tourController.checkID);
+// router.param('id', tourController.checkID);
 
 router
   .route('/')
