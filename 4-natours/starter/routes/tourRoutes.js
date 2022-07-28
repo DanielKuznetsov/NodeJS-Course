@@ -6,6 +6,8 @@ const router = express.Router();
 // Checking if the ID works -> if the ID is actually valid
 // router.param('id', tourController.checkID);
 
+router.route('/tour-stats').get(tourController.getTourStats);
+
 router
   .route('/top-5-cheap-tours')
   .get(tourController.aliasTopTours, tourController.getAllTours);
