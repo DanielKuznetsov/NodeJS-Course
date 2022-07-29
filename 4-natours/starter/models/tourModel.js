@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+// const validator = require('validator');
 
 // ! THIS IS BASIC SCHEMA
 const tourSchema = new mongoose.Schema(
@@ -10,6 +11,9 @@ const tourSchema = new mongoose.Schema(
       required: [true, 'A tour must have a name'],
       unique: true,
       trim: true, // trimming white space off the string
+      maxLength: [40, 'The tour must have less or equal than 40 characters'], // maximum length  of a field
+      minlength: [10, 'The tour must have less or equal than 10 characters'], // minimum length of a field
+      // validate: [validator.isAlpha, 'Tour name must only contain characters'], // external libarary validation
     },
     slug: String,
     duration: {
@@ -23,10 +27,16 @@ const tourSchema = new mongoose.Schema(
     difficulty: {
       type: String,
       required: [true, 'A tour must have a difficulty'],
+      enum: {
+        values: ['easy', 'medium', 'difficult'],
+        message: 'Difficulty is either: easy, medium, difficult',
+      },
     },
     ratingsAverage: {
       type: Number,
       default: 4.5, // will be calculated later with real reviews
+      min: [1, 'Rating must be above 1.0'],
+      max: [5, 'The rating must be below 5.0'],
     },
     ratingsQuantity: {
       type: Number,
@@ -36,7 +46,16 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       required: [true, 'A tour must have a price'],
     },
-    priceDiscount: Number,
+    priceDiscount: {
+      type: Number,
+      validate: {
+        validator: function (value) {
+          // validating the price, value is the "priceDiscount"
+          return value < this.price; // this won't work in the "PATCH"; therefore, only points to the current or NEW document creating
+        },
+        message: 'Discount price ({VALUE}) should be below the regular price',
+      },
+    },
     summary: {
       type: String,
       trim: true, // trimming white space off the string,
