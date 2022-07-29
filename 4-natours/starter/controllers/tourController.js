@@ -218,11 +218,11 @@ exports.getTourStats = async (req, res) => {
       {
         $sort: { avgPrice: 1 }, // assending order of sorting by "avgPrice"
       },
-      {
-        $match: {
-          _id: { $ne: 'easy' }, // a way to exclude; in this case "easy" tours
-        },
-      },
+      // {
+      //   $match: {
+      //     _id: { $ne: 'easy' }, // a way to exclude; in this case "easy" tours
+      //   },
+      // },
     ]);
 
     res.status(200).json({
