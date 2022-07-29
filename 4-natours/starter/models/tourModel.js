@@ -57,6 +57,10 @@ const tourSchema = new mongoose.Schema(
       // select: false, // hides form the API output
     },
     startDates: [Date],
+    secretTour: {
+      type: Boolean,
+      deault: false,
+    },
   },
   {
     toJSON: { virtuals: true },
@@ -79,6 +83,24 @@ tourSchema.virtual('durationWeeks').get(function () {
 //   console.log(doc);
 //   next();
 // });
+
+// QUERY MIDDLEWARE
+tourSchema.pre(/^find/, function (next) {
+  // will start any middleware that starts with "find" at the beginning of the query
+  this.find({
+    secretTour: { $ne: true },
+  });
+
+  this.start = Date.now();
+  next();
+});
+
+tourSchema.post(/^find/, function (docs, next) {
+  console.log(`Query took ${Date.now() - this.start} milliseconds`);
+  console.log(docs);
+
+  next();
+});
 
 // ! THIS IS BASIC MODEL TO THE SCHEMA RIGHT ABOVE
 const Tour = mongoose.model('Tour', tourSchema); // use uppercase on names and variables in mongoose models
