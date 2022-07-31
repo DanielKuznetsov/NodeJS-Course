@@ -38,7 +38,7 @@ userSchema.pre('save', async function (req, res, next) {
   if (!this.isModified('password')) return next();
 
   // Hash the password with cost of 12
-  this.password = await bcrypt.hash(this.password, 12); // crypting password
+  this.password = await bcrypt.hash(this.password, 12); // encrypting password
 
   // Delete passwordConfirm field
   this.passwordConfirm = undefined;
