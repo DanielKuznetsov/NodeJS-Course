@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide your password!'],
     minlength: 8,
+    select: false, // not to show password in the database or API response
   },
   passwordConfirm: {
     type: String,
@@ -45,6 +46,14 @@ userSchema.pre('save', async function (req, res, next) {
 
   next();
 });
+
+// Instance methods - will be available to all documents in a certain collection - no need to export this
+userSchema.methods.correctPassword = async function (
+  candidatePassword,
+  userPassword
+) {
+  return await bcrypt.compare(candidatePassword, userPassword); // return "True" if the passwords are the same
+};
 
 const User = mongoose.model('User', userSchema);
 
