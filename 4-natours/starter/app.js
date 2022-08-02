@@ -1,6 +1,7 @@
 // https://www.natours.dev/api/v1/tours
 const express = require('express');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 
 const AppError = require('./utilities/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -9,12 +10,19 @@ const userRouter = require('./routes/userRoutes');
 
 const app = express();
 
-// 1. MIDDLEWARES - middleware - function that modifies the incoming information
+// 1. GLOBAL MIDDLEWARES - middleware - function that modifies the incoming information
 app.use(express.json());
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+
+const limiter = rateLimit({
+  max: 100, // will allow 100 requests from the same IP in 1 HOUR
+  windowMs: 60 * 60 * 1000, // resets in 1 hour
+  message: 'Too many requests from this IP. Please try again in an hour!',
+});
+app.use('/api', limiter); // will affect only routes that start with /api
 
 // Serving static files
 app.use(express.static(`${__dirname}/public`));
