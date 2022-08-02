@@ -41,6 +41,11 @@ const userSchema = new mongoose.Schema({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 userSchema.pre('save', function (next) {
@@ -71,6 +76,14 @@ userSchema.methods.correctPassword = async function (
 ) {
   return await bcrypt.compare(candidatePassword, userPassword); // return "True" if the passwords are the same
 };
+
+// Query middleware
+userSchema.pre(/^find/, function (next) {
+  // this points to the current query
+  this.find({ active: { $ne: false } }); // sets the active query to look for objects that have "active" state set to true
+
+  next();
+});
 
 // Another instance method
 userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
