@@ -3,6 +3,9 @@ const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const hpp = require('hpp');
 
 const AppError = require('./utilities/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -16,6 +19,30 @@ app.use(helmet());
 
 // 1. GLOBAL MIDDLEWARES - middleware - function that modifies the incoming information
 app.use(express.json({ limit: '10kb' })); // Body parser, reading data from the body into req.body; body larger 10kb won't be accepted
+
+// Data sanitization against NoSQL query injection
+// ! {
+// !   "email": { "$gt": "" },
+// !   "password": "newpass1234"
+// ! }
+app.use(mongoSanitize()); // filters out operators and $-dollar sign from queries
+
+// Data sanitization against XSS
+app.use(xss()); // clean input from malisious html code
+
+// prevent parameter pollution
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsAverage',
+      'ratingsQuantity',
+      'maxGroupSize',
+      'difficulty',
+      'price',
+    ],
+  })
+);
 
 // Development logging
 if (process.env.NODE_ENV === 'development') {
