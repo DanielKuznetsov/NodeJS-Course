@@ -80,6 +80,30 @@ const tourSchema = new mongoose.Schema(
       type: Boolean,
       deault: false,
     },
+    startLocation: {
+      // MongoDB uses GeoJSON in order to specify geospacial data
+      type: {
+        type: String,
+        default: 'Point', // Poligons or Lines
+        enum: ['Point'],
+      },
+      coordinated: [Number], // expect an array of numbers
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        date: Number,
+      },
+    ],
   },
   {
     toJSON: { virtuals: true },
