@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+// const User = require('./userModel');
 // const validator = require('validator');
 
 // ! THIS IS BASIC SCHEMA
@@ -104,6 +105,10 @@ const tourSchema = new mongoose.Schema(
         date: Number,
       },
     ],
+    // guides: Array,
+    guides: [
+      { type: mongoose.Schema.ObjectId, ref: 'User' }, // expecting a MongoDB ID
+    ],
   },
   {
     toJSON: { virtuals: true },
@@ -120,6 +125,15 @@ tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
+
+// Embedding in the DB
+// tourSchema.pre('save', async function (next) {
+//   const guidesPromises = this.guides.map(async (id) => await User.findById(id));
+
+//   this.guides = await Promise.all(guidesPromises);
+
+//   next();
+// });
 
 // // is executed after all pre middleware functions are executed
 // tourSchema.post('save', function (doc, next) {
@@ -141,6 +155,16 @@ tourSchema.pre(/^find/, function (next) {
 tourSchema.post(/^find/, function (docs, next) {
   console.log(`Query took ${Date.now() - this.start} milliseconds`);
   // console.log(docs);
+
+  next();
+});
+
+// Populate method for the "guides" section in the tourModel
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangedAt',
+  });
 
   next();
 });
