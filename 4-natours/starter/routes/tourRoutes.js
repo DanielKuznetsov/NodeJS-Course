@@ -18,7 +18,13 @@ router.use('/:tourId/reviews', reviewRouter); // for this specific route, we wan
 // Checking if the ID works -> if the ID is actually valid
 // router.param('id', tourController.checkID);
 
-router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
+router
+  .route('/monthly-plan/:year')
+  .get(
+    authController.protect,
+    authController.restrictTo('admin', 'lead-guide', 'guide'),
+    tourController.getMonthlyPlan
+  );
 router.route('/tour-stats').get(tourController.getTourStats);
 
 router
@@ -27,14 +33,22 @@ router
 
 router
   .route('/')
-  .get(authController.protect, tourController.getAllTours)
-  .post(tourController.createTour);
+  .get(tourController.getAllTours)
+  .post(
+    authController.protect,
+    authController.restrictTo('adin', 'lead-guide'),
+    tourController.createTour
+  );
 // .post(tourController.checkBody, tourController.createTour);
 
 router
   .route('/:id')
   .get(tourController.getTour)
-  .patch(tourController.updateTour)
+  .patch(
+    authController.protect,
+    authController.restrictTo('admin', 'lead-guide'),
+    tourController.updateTour
+  )
   .delete(
     authController.protect,
     authController.restrictTo('admin', 'lead-guide'),
