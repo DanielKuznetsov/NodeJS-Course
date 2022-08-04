@@ -11,6 +11,7 @@ const AppError = require('./utilities/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
+const reviewRouter = require('./routes/reviewRoutes');
 
 const app = express();
 
@@ -70,6 +71,7 @@ app.use((req, res, next) => {
 // 2. ROUTES
 app.use('/api/v1/tours', tourRouter); // middleware
 app.use('/api/v1/users', userRouter); // this is where we mount 2 routes
+app.use('/api/v1/reviews', reviewRouter);
 
 // Handling unknown routes ––– must be at the end of all routes
 app.all('*', (req, res, next) => {
