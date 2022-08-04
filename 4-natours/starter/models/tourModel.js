@@ -120,6 +120,13 @@ tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
 
+// Virtual Populate to get tours know what reviews they have instead of creating an infinite array
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour', // reference to the erview model
+  localField: '_id',
+});
+
 // DOCUMENT MIDDLEWARE: runds before .save() and .create()
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
