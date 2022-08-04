@@ -3,7 +3,7 @@ const authController = require('../controllers/authController');
 
 const express = require('express');
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router.route('/').get(reviewController.getAllReviews).post(
   authController.protect,
