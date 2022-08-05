@@ -36,7 +36,7 @@ router
   .get(tourController.getAllTours)
   .post(
     authController.protect,
-    authController.restrictTo('adin', 'lead-guide'),
+    authController.restrictTo('admin', 'lead-guide'),
     tourController.createTour
   );
 // .post(tourController.checkBody, tourController.createTour);

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Tour = require('./tourModel');
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -47,6 +48,46 @@ reviewSchema.pre(/^find/, function (next) {
   });
 
   next();
+});
+
+reviewSchema.statics.calcAverageRatings = async function (tourId) {
+  // Get tour and create statistics
+  const stats = await this.aggregate([
+    {
+      $match: { tour: tourId },
+    },
+    {
+      $group: {
+        _id: '$tour',
+        nRating: { $sum: 1 },
+        avgRating: { $avg: '$rating' },
+      },
+    },
+  ]);
+
+  // Save statisctics to the current tour
+  await Tour.findByIdAndUpdate(tourId, {
+    ratingsQuantity: stats[0].nRating,
+    ratingsAverage: stats[0].avgRating,
+  });
+};
+
+// Call the aboev function after the review has been created
+reviewSchema.post('save', function () {
+  // this will point to current review (to current model)
+  this.constructor.calcAverageRatings(this.tour); // the "tour" will be on the review object which we pass into the function
+});
+
+// Middleware for when the review is updated or deleted
+reviewSchema.pre(/^findOneAnd/, async function (next) {
+  this.review = await this.findOne().clone();
+
+  next();
+});
+
+// after the query has been finished and the review has been updated
+reviewSchema.post(/^findOneAnd/, async function () {
+  await this.review.constructor.calcAverageRatings(this.review.tour);
 });
 
 const Review = mongoose.model('Review', reviewSchema);
