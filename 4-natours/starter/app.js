@@ -1,4 +1,5 @@
 // https://www.natours.dev/api/v1/tours
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
@@ -14,6 +15,10 @@ const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 
 const app = express();
+
+// ! Setting up "Pug"
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views')); // joining directory name /views
 
 // Security HTTP headers
 app.use(helmet());
@@ -59,7 +64,7 @@ const limiter = rateLimit({
 app.use('/api', limiter); // will affect only routes that start with /api
 
 // Serving static files
-app.use(express.static(`${__dirname}/public`));
+app.use(express.static(`${__dirname}/public`)); // ! need for CSS to work
 
 // Test middleware
 app.use((req, res, next) => {
@@ -69,6 +74,14 @@ app.use((req, res, next) => {
 });
 
 // 2. ROUTES
+// Rendering "pug" file
+app.get('/', (req, res) => {
+  res.status(200).render('base', {
+    tour: 'The Forest Hiker', // this is a variable in pug file
+    user: 'Daniel K',
+  });
+});
+
 app.use('/api/v1/tours', tourRouter); // middleware
 app.use('/api/v1/users', userRouter); // this is where we mount 2 routes
 app.use('/api/v1/reviews', reviewRouter);
