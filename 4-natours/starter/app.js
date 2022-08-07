@@ -7,6 +7,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
 
 const AppError = require('./utilities/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -22,10 +23,11 @@ app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views')); // joining directory name /views
 
 // Security HTTP headers
-app.use(helmet());
+// app.use(helmet());
 
 // 1. GLOBAL MIDDLEWARES - middleware - function that modifies the incoming information
 app.use(express.json({ limit: '10kb' })); // Body parser, reading data from the body into req.body; body larger 10kb won't be accepted
+app.use(cookieParser()); // data from cookies
 
 // Data sanitization against NoSQL query injection
 // ! {
@@ -71,6 +73,7 @@ app.use(express.static(`${__dirname}/public`)); // ! need for CSS to work
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   // console.log(req.headers);
+  console.log(req.cookies);
   next();
 });
 
