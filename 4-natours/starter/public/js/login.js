@@ -1,4 +1,7 @@
-const login = async (email, password) => {
+import axios from 'axios';
+import { showAlert } from './alerts';
+
+export const login = async (email, password) => {
   // console.log(email, password);
 
   try {
@@ -12,22 +15,13 @@ const login = async (email, password) => {
     });
 
     if (result.data.status === 'success') {
-      alert('Logged in successfully!');
+      showAlert('success', 'Logged in successfully!');
 
       window.setTimeout(() => {
         location.assign('/'); // ! in order to reload/load a page
       }, 1500);
     }
   } catch (err) {
-    alert(err.response.data.message);
+    showAlert('error', err.response.data.message);
   }
 };
-
-document.querySelector('.form').addEventListener('submit', (e) => {
-  e.preventDefault();
-
-  const email = document.querySelector('#email');
-  const password = document.querySelector('#password');
-
-  login(email.value, password.value);
-});
