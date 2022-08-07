@@ -100,6 +100,7 @@ exports.login = catchAsync(async (req, res, next) => {
   // });
 });
 
+// Good only for protected routes
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Getting the token and check if it exists
   let token;
@@ -141,6 +142,39 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // GRANT ACCESS TO PROTECTED ROUTE
   req.user = freshUser;
+  next();
+});
+
+// Good for all new and existing routes
+// Only for rendered pages
+exports.isLoggedIn = catchAsync(async (req, res, next) => {
+  if (req.cookies.jwt) {
+    token = req.cookies.jwt;
+
+    // 2) Verification the token
+    const decoded = await promisify(jwt.verify)(
+      req.cookies.jwt,
+      process.env.JWT_SECRET
+    );
+    // console.log(decoded);
+
+    // 3) Check if user is still exists
+    const freshUser = await User.findById(decoded.id);
+    if (!freshUser) {
+      return next();
+    }
+
+    // 4) Check if user changed password after token was issued
+    if (freshUser.changedPasswordAfter(decoded.iat)) {
+      return next();
+    }
+
+    // THERE IS A LOGGED IN USER
+    res.locals.user = freshUser; // this will allow that each PUG template will have access to this variable
+    req.user = freshUser;
+    return next();
+  }
+
   next();
 });
 
