@@ -1,10 +1,11 @@
 // !@MAIN FILE
 
 import '@babel/polyfill'; // a package that makes new features of JS to work in old browsers
-import { login } from './login';
+import { login, logout } from './login';
 
 // DOM ELEMENTS
 const loginForm = document.querySelector('.form');
+const logOutBtn = document.querySelector('.nav__el--logout');
 
 // VALUES
 
@@ -18,3 +19,5 @@ if (loginForm)
 
     login(email, password);
   });
+
+if (logOutBtn) logOutBtn.addEventListener('click', logout);

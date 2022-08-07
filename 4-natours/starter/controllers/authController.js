@@ -145,38 +145,51 @@ exports.protect = catchAsync(async (req, res, next) => {
   next();
 });
 
+exports.logout = (req, res) => {
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+
+  res.status(200).json({ status: 'success' });
+};
+
 // Good for all new and existing routes
 // Only for rendered pages
-exports.isLoggedIn = catchAsync(async (req, res, next) => {
+exports.isLoggedIn = async (req, res, next) => {
   if (req.cookies.jwt) {
-    token = req.cookies.jwt;
+    try {
+      token = req.cookies.jwt;
 
-    // 2) Verification the token
-    const decoded = await promisify(jwt.verify)(
-      req.cookies.jwt,
-      process.env.JWT_SECRET
-    );
-    // console.log(decoded);
+      // 2) Verification the token
+      const decoded = await promisify(jwt.verify)(
+        req.cookies.jwt,
+        process.env.JWT_SECRET
+      );
+      // console.log(decoded);
 
-    // 3) Check if user is still exists
-    const freshUser = await User.findById(decoded.id);
-    if (!freshUser) {
+      // 3) Check if user is still exists
+      const freshUser = await User.findById(decoded.id);
+      if (!freshUser) {
+        return next();
+      }
+
+      // 4) Check if user changed password after token was issued
+      if (freshUser.changedPasswordAfter(decoded.iat)) {
+        return next();
+      }
+
+      // THERE IS A LOGGED IN USER
+      res.locals.user = freshUser; // this will allow that each PUG template will have access to this variable
+      req.user = freshUser;
+      return next();
+    } catch (err) {
       return next();
     }
-
-    // 4) Check if user changed password after token was issued
-    if (freshUser.changedPasswordAfter(decoded.iat)) {
-      return next();
-    }
-
-    // THERE IS A LOGGED IN USER
-    res.locals.user = freshUser; // this will allow that each PUG template will have access to this variable
-    req.user = freshUser;
-    return next();
   }
 
   next();
-});
+};
 
 // ! Cannot pass variables into middleware functions,
 // ! so we create a function and put a middleware inside it
