@@ -15,7 +15,7 @@ const login = async (email, password) => {
       alert('Logged in successfully!');
 
       window.setTimeout(() => {
-        location.assign('/'); // ! in order to load a page
+        location.assign('/'); // ! in order to reload/load a page
       }, 1500);
     }
   } catch (err) {
