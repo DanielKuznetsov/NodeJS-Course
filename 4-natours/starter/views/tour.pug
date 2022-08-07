@@ -1,5 +1,9 @@
 extends base
 
+block append head
+  script(src='https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.js')
+  link(href='https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.css', rel='stylesheet')
+
 mixin reviewCard(review) 
   .reviews__card
     .reviews__avatar
@@ -79,8 +83,8 @@ block content
       .picture-box
         img.picture-box__img(src=`/img/tours/${img}`, alt=`The Park Camper Tour ${index + 1}`, class=`picture-box__img--${index + 1}`)
 
-  section.section-map
-    #map
+  //- section.section-map
+  //-   #map(data-locations=`${JSON.stringify(tour.locations)}`)
 
   section.section-reviews
     .reviews
