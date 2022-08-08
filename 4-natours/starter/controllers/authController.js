@@ -28,7 +28,7 @@ const createSendToken = (user, statusCode, res) => {
   res.cookie('jwt', token, cookieOptions);
 
   // Remove the password from the API output
-  user.password = undefined;
+  // user.password = undefined;
 
   res.status(statusCode).json({
     status: 'success',
@@ -83,6 +83,8 @@ exports.login = catchAsync(async (req, res, next) => {
 
   // 2) Check if user exists && password is correct
   const user = await User.findOne({ email }).select('+password');
+
+  console.log(user.password);
 
   if (!user || !(await user.correctPassword(password, user.password))) {
     // !  if "user" is true, it will run the return and not run the "await user..."
