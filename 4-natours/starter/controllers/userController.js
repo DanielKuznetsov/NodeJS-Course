@@ -1,19 +1,22 @@
 const User = require(`.././models/userModel`);
 const AppError = require('../utilities/appError');
-const multer = require('multer');
+const multer = require('multer'); // upload images
+const sharp = require('sharp'); // library for image processing needs
 const catchAsync = require('./../utilities/catchAsync');
 const factory = require('../controllers/handlerFactory');
 
-const multerStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'public/img/users');
-  },
-  filename: (req, file, cb) => {
-    // user-ID-currentTimeStamp.jpeg
-    const ext = file.mimetype.split('/')[1];
-    cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
-  },
-});
+// ! Not needed if using image processing library
+// const multerStorage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, 'public/img/users');
+//   },
+//   filename: (req, file, cb) => {
+//     // user-ID-currentTimeStamp.jpeg
+//     const ext = file.mimetype.split('/')[1];
+//     cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+//   },
+// });
+const multerStorage = multer.memoryStorage(); // will be stored as a buffer and then be available on req.file.buffer
 
 // We do not want to allow file images but only photos
 const multerFilter = (req, file, cb) => {
@@ -30,6 +33,20 @@ const upload = multer({
 }); // For file uploads
 
 exports.uploadUserPhoto = upload.single('photo'); // allows to store files in the specified folder
+
+exports.resizeUserPhoto = (req, res, next) => {
+  if (!req.file) return next();
+
+  req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
+
+  sharp(req.file.buffer)
+    .resize(500, 500)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`public/img/users/${req.file.filename}`);
+
+  next();
+};
 
 const filteredObj = (obj, ...allowedFields) => {
   // need this function so the user does not update/make himself an "admin"
@@ -63,6 +80,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
 
   // 2) Filtered out unwanted fields names that are not allowed to be updated
   const filteredBody = filteredObj(req.body, 'name', 'email');
+  if (req.file) filteredBody.photo = req.file.filename;
 
   // 3) Update user document
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
