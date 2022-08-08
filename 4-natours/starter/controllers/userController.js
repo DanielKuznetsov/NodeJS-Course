@@ -1,7 +1,35 @@
 const User = require(`.././models/userModel`);
 const AppError = require('../utilities/appError');
+const multer = require('multer');
 const catchAsync = require('./../utilities/catchAsync');
 const factory = require('../controllers/handlerFactory');
+
+const multerStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'public/img/users');
+  },
+  filename: (req, file, cb) => {
+    // user-ID-currentTimeStamp.jpeg
+    const ext = file.mimetype.split('/')[1];
+    cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+  },
+});
+
+// We do not want to allow file images but only photos
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image')) {
+    cb(null, true);
+  } else {
+    cb(new AppError('Not an image. Please upload only images!', 400), false);
+  }
+};
+
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+}); // For file uploads
+
+exports.uploadUserPhoto = upload.single('photo'); // allows to store files in the specified folder
 
 const filteredObj = (obj, ...allowedFields) => {
   // need this function so the user does not update/make himself an "admin"
@@ -21,6 +49,9 @@ exports.getMe = (req, res, next) => {
 };
 
 exports.updateMe = catchAsync(async (req, res, next) => {
+  console.log(req.file);
+  console.log(req.body);
+
   // 1) Create error if user POSTs password data
   if (req.body.password || req.body.passwordConfirm)
     return next(
