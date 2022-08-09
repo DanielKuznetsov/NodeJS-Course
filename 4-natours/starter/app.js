@@ -8,6 +8,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 
 const AppError = require('./utilities/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -65,6 +66,8 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP. Please try again in an hour!',
 });
 app.use('/api', limiter); // will affect only routes that start with /api
+
+app.use(compression()); // will compress all text files sent to client
 
 // Serving static files
 app.use(express.static(`${__dirname}/public`)); // ! need for CSS to work
